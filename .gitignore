@@ -1,0 +1,48 @@
+# Compiled class file
+*.class
+
+# BlueJ files
+*.ctxt
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.workspace
+
+# virtual machine crash logs
+hs_err_pid*
+
+# Tex files
+*.aux
+*.log
+*.synctex.gz
+*.xdv
+*.fdb_latexmk
+*.fls
+*.pdf
+# Pythontex files
+*.pytxcode
+Makefile
+pythontex-files-*
+
+# Django files
+*.pyc
+asgi.py
+urls.py
+settings.py
+wsgi.py
+db.sqlite3
+manage.py
+
+# vscode files
+*.code-workspace
+*.json
+
+# C++ resource files
+*.exe
+
+# images
