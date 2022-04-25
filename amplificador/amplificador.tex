@@ -175,14 +175,140 @@ fig.savefig("figures/plot1.pdf")
     \caption{Punto de operación primera etapa del préamplificador}
 \end{figure}
 
+\newpage
 \subsubsection{Rectas de carga en DC y AC}
-Para realizar la recta de carga en AC, se tienen las siguientes ecuaciones en la malla de salida:
+Haciendo el análisis en DC y AC, se tienen los circuitos equivalentes:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{figures/image2.png}
+    \caption{Análisis en DC en la malla de salida}
+\end{figure}
+
+de esa malla, se tiene:
+\begin{align}
+    V_{CC} &= R_C\cdot I_C + R_E\cdot I_E \\
+    I_E &\approx I_C \nonumber\\
+    V_{CC} &= I_C(R_C + R_E) \nonumber\\
+    \therefore R_{DC} &= R_C + R_E \nonumber
+\end{align}
+
+para la carga en AC, se tiene
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{figures/image3.png}
+    \caption{Análisis en AC en la malla de salida}
+\end{figure}
+en la malla de salida
+\begin{align*}
+    \Delta v_{CE} &= -\Delta i_C (R_E + R_C) \\
+    \therefore R_{AC} &= R_E + R_C
+\end{align*}
+
+entonces, se tiene la ecuación para la recta de carga en AC
+\begin{equation}
+    i_C = -\dfrac{v_{CE}}{R_{AC}} + \dfrac{V_{CEQ}}{R_{AC}} + I_{CQ}
+\end{equation}
+
+con las condiciones siguientes
+\begin{align*}
+    \Bigl. i_{\text{cmáx}}\Bigr|_{v_{CE}=0} &= \dfrac{V_{CEQ}}{R_{AC}} + I_{CQ} \\[1.5mm]
+    \Rightarrow i_{\text{cmác}} &= 67.95 mA \\[3mm]
+    \Bigl. v_{\text{CEmáx}}\Bigr|_{i_C=0} &= V_{CEQ} + I_{CQ}\cdot R_{AC}\\[1.5mm]
+    \Rightarrow v_{\text{CEmáx}} &= 17.67 V
+\end{align*}
+
+\begin{pycode}
+import matplotlib.pyplot as plt
+
+# DC
+V_CE = 18 
+I_C = 66.67 
+
+# AC
+v_CE = 17.67 
+i_C = 67.95
+
+# Punto Quiescente Q
+V_CEQ = 9
+I_CQ = 33.33
+
+label = f"Q({V_CEQ} V, {I_CQ} mA)"
+DC = [[0,V_CE],[I_C,0]]
+AC = [[0, v_CE], [i_C,0]]
+
+fig = plt.figure()
+
+plt.plot(DC[0],DC[1],label="recta DC")
+plt.legend()
+plt.plot(V_CEQ, I_CQ, "o")
+plt.plot(AC[0],AC[1],label="recta AC")
+plt.legend()
+
+plt.annotate(label, (V_CEQ, I_CQ), 
+textcoords="offset points", xytext=(0,-10), ha="center")
+
+plt.grid(True)
+plt.xlabel("$V_{CE}\ (V)$")
+plt.ylabel("$I_{C}\ (mA)$")
+fig.savefig("figures/plot2.pdf")
+\end{pycode}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{figures/plot2.pdf}
+    \caption{Rectas de carga en AC y DC}
+\end{figure}
+
+\subsubsection{Gráfica de Bode}
+
+\subsubsection{Potencia}
+La potencia máxima que se consume por parte del transistor es:
+\begin{align*}
+    \text{P}_\text{D} &= \text{V}_{\text{CEQ}}\cdot \text{I}_{\text{CQ}} \\
+    \text{P}_\text{D} &= (9\text{V})(33.33 \text{mA}) \\
+    \therefore \text{P}_\text{D} &= 300 \text{mW}.
+\end{align*}
+
+La potencia suministrada será:
+\begin{align*}
+    P_{CC} = V_{CC}\cdot I\\
+    P_{CC} = V_{CC}\cdot (I_{CQ} + I_1)\\
+    P_{CC} = V_{CC}\cdot \left[I_{CQ} + \dfrac{V_{CC}}{R_1 + R_2}\right]\\[1.5mm]
+    \therefore P_{CC} = 620.76 \text{mW}
+\end{align*}
+
+La potencia que se entrega a la carga $\text{R}_\text{L}$, en este caso será igual a la 
+impedancia de entrada de la segunda etapa ($\text{Z}_{\text{i2}}$).
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{figures/image4.png}
+    \caption{Modelo híbrido simplificado}
+    \label{fig:image5}
+\end{figure}
+
+Determinando el $h_{ie}\ $:
+\begin{align*}
+    h_{ie} &= \dfrac{V_T}{I_B}\\[1mm]
+    \Rightarrow h_{ie} &= 112.5 \Omega\\
+\end{align*}
+
+de la malla de salida de la Figura \eqref{fig:image5}, se tiene que (sin $\text{R}_\text{L}$)
+\begin{align*}
+    A_v &= \dfrac{-h_{fe}(R_C)}{h_{ie}+(hfe+1)} \\[1.5mm]
+    A_v &= \dfrac{-150(260)}{112.5+150+1}\\[1mm]
+    \therefore \text{A}_\text{v} &= -148
+\end{align*}
 
 \begin{align*}
+    \text{P}_\text{L} &= \dfrac{\text{V}_{\text{o}}^2}{\text{R}_\text{L}}\\[1.5mm]
+    \text{P}_\text{L} &= \dfrac{\left(\dfrac{\text{V}_\text{o}}{\sqrt{2}}\right)}
+    {\text{R}_\text{L}}
 \end{align*}
-\subsubsection{Gráfica de Bode}
-\subsubsection{Potencia}
 
+\begin{align*}
+    \eta = \dfrac{P_L}{P_{CC}}
+\end{align*}
 \subsection{Diseño y cálculos para la segunda etapa}
 \subsubsection{Gráficas del punto de operación}
 \subsubsection{Rectas de carga en DC y AC}
