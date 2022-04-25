@@ -53,16 +53,17 @@ Para esta etapa, se hizo uso de un amplificador multietapa.
     \item \textbf{Primera etapa}
         \begin{itemize}
             \item Polarización universal en emisor común.
-            \item Transistor \verb|BC548|
+            \item Transistor \verb|BC548A|
         \end{itemize}
 
     \item \textbf{Segunda etapa}
         \begin{itemize}
             \item Polarización universal en emisor común.
-            \item Transistor \verb|BC548|
+            \item Transistor \verb|BC548A|
         \end{itemize}
 \end{itemize}
 
+\newpage
 \subsection{Diseño y cálculos para la primera etapa}
 Dado el siguiente circuito en \textbf{polarización universal} en \textbf{emisor común}:  
 \begin{figure}[H]
@@ -71,8 +72,114 @@ Dado el siguiente circuito en \textbf{polarización universal} en \textbf{emisor
     \caption{Primera etapa del preamplificador con polarización universal EC}
     \label{fig:image1}
 \end{figure}
-\subsubsection{Gráficas del punto de operación}
+
+Para el transistor \verb|BC548A|, se obtuvieron los siguientes valores según \textbf{datasheet}:
+\begin{itemize}
+    \item $\text{I}_{\text{C}_{\text{máx}}} = 100\ \text{mA}$
+    \item $\text{h}_{\text{fe}} = 150$
+    \item $\text{V}_{\text{CE}} = 5\ \text{V}$
+    \item $\text{P}_\text{D} = 625\ \text{mW}$
+    \item $V_{BE} = 0.7\ \text{V}$
+\end{itemize}
+Ahora, se mostrarán las ecuaciones que serán usadas para el diseño 
+\begin{align}
+    V_{CEQ} &= \dfrac{V_{CC}}{2} \label{eq:1}\\[1mm]
+    V_{CEQ} &= I_{CQ}\cdot R_{AC} \label{eq:2}\\[1mm]
+    R_B &\le 0.1\cdot \beta \cdot R_E \label{eq:3}\\[1.5mm]
+    P_D &= V_{CEQ}\cdot I_{CEQ} \label{eq:4}\\[1.5mm]
+    R_1 &= \dfrac{V_CC - V_{BE} -I_E\cdot R_E}{10I_B} \label{eq:5}\\[1.5mm]
+    R_2 &= \dfrac{V_{BE} + (\beta + 1)I_B\cdot R_E}{10I_B}\label{eq:6}\\[1.5mm]
+    I_C &= \beta I_B \label{eq:7}
+\end{align}  
+
+proponiendo $V_{CC} = 18 V$, de \eqref{eq:1}:
+\begin{align*}
+    V_{CEQ} &= \dfrac{18}{2} \\[1.5mm]
+    \therefore V_{CEQ} &= 9 V
+\end{align*}
+
+ahora, de \eqref{eq:4} y del \textbf{\textit{datasheet}}
+\begin{align*}
+    P_D &= V_{CEQ}\cdot I_{CQ} \\[1mm]
+    I_{CQ} &= \dfrac{600m}{9V} \\[1mm]
+    \therefore I_{CQ} &= 33.33 mA 
+\end{align*}
+
+en \eqref{eq:2}
+\begin{align*}
+    V_{CEQ} = I_{CQ} \cdot R_{AC} \\[1mm]
+    R_{AC} = \dfrac{V_{CEQ}}{I_{CQ}} \\ = \dfrac{9V}{33.33mA}\\[1.5mm]
+    \therefore R_{AC} = 0.270K
+\end{align*}
+se tiene que $R_{AC} = R_E + R_C$, se propone $R_E = 10 \Omega$
+$$ \Rightarrow R_C = 0.260 k\Omega.$$
+
+Para determinar los valores de $R_1$ y $R_2$, se tiene en \eqref{eq:7}: 
+\begin{align*}
+    I_B &= \dfrac{I_C}{h_{ie}}\\[1.5mm]
+    I_B &= \dfrac{33.33 mA}{150}\\[1.5mm] 
+    \therefore I_B &= 222.22 \mu A
+\end{align*}
+
+de \eqref{eq:5} y \eqref{eq:6}:
+\begin{align*}
+    R_1 &= \dfrac{V_{CC} - V_{BE} -I_E\cdot R_E}{10\cdot I_B}\\[1.5mm]
+    R_1 &= \dfrac{18 - 0.7 - (33.33m)(0.01k)}{10\cdot 222.22\mu}\\[1.5mm]
+    \therefore R_1 &= 7.63 k\Omega \\[2mm]
+    R_2 &= \dfrac{V_{BE} + (\beta + 1)I_B\cdot R_E}{10\cdot I_B}\\[1.5mm]
+    R_2 &= \dfrac{0.7 + (151)(222.22\mu)(0.01k)}{10\cdot 222.22\mu}\\[1.5mm]
+    \therefore R_2 &= 0.15 k\Omega
+\end{align*}
+
+\subsubsection{Gráfica del punto de operación}
+De la malla de salida se tiene:
+\begin{align}
+    V_{CC} = R_C\cdot I_C + R_E\cdot I_C
+\end{align}
+
+con las siguientes condiciones:
+\begin{align*}
+    \Bigl. V_{CE}\Bigr|_{I_C=0} &= V_{CC}\\[1.5mm]
+    \Rightarrow V_{CE} &= 18 V \\[3mm]
+    \Bigl. I_{C}\Bigr|_{V_{CE}=0} &= \dfrac{V_{CC}}{R_C + R_E}\\[1.5mm]
+    \Rightarrow I_{C} &= 66.67 mA
+\end{align*}
+con los datos obtenidos, el valor de punto Q es: 
+$I_{CQ} = 33.33 mA$ y $ V_{CEQ} = 9 V$
+
+\begin{pycode}
+import matplotlib.pyplot as plt
+
+V_CE = 18 
+I_C = 66.67 
+V_CEQ = 9
+I_CQ = 33.33
+
+label = f"Q({V_CEQ} V, {I_CQ} mA)"
+DC = [[0,V_CE],[I_C,0]]
+
+fig = plt.figure()
+plt.plot(DC[0],DC[1])
+plt.plot(V_CEQ, I_CQ, "o")
+plt.annotate(label, (V_CEQ, I_CQ), 
+textcoords="offset points", xytext=(0,-10), ha="center")
+
+plt.grid(True)
+plt.xlabel("$V_{CE}\ (V)$")
+plt.ylabel("$I_{C}\ (mA)$")
+fig.savefig("figures/plot1.pdf")
+\end{pycode}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{figures/plot1.pdf}
+    \caption{Punto de operación primera etapa del préamplificador}
+\end{figure}
+
 \subsubsection{Rectas de carga en DC y AC}
+Para realizar la recta de carga en AC, se tienen las siguientes ecuaciones en la malla de salida:
+
+\begin{align*}
+\end{align*}
 \subsubsection{Gráfica de Bode}
 \subsubsection{Potencia}
 
@@ -84,7 +191,7 @@ Dado el siguiente circuito en \textbf{polarización universal} en \textbf{emisor
 
 \newpage
 \subsection{Amplificador de potencia}
-En esta etapa, se tienen las siguientes características: 
+En esta etapa, se tienen las siguientes características:
 \begin{itemize}
     \item Amplificador clase B
 \end{itemize}
@@ -95,3 +202,4 @@ En esta etapa, se tienen las siguientes características:
 \subsubsection{Gráfica de Bode}
 \subsubsection{Potencia}
 \end{document}
+
