@@ -20,6 +20,8 @@ hs_err_pid*
 *.aux
 *.log
 *.synctex.gz
+*.out
+*.toc
 *.xdv
 *.fdb_latexmk
 *.fls
